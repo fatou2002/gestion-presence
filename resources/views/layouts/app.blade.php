@@ -15,15 +15,16 @@
                     {{-- ADMIN --}}
                     @if(auth()->user()->role === 'admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('users.index') }}">Utilisateurs</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('export.pdf') }}">Export PDF</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('export.excel') }}">Export Excel</a></li>
 
                         {{-- GESTIONNAIRE --}}
                     @elseif(auth()->user()->role === 'manager')
                         <li class="nav-item"><a class="nav-link" href="{{ route('services.index') }}">Services</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('creneaux.index') }}">Créneaux</a></li> {{-- 🔥 ajout ici --}}
-                        <li class="nav-item"><a class="nav-link" href="{{ route('statistiques') }}">📊 Statistiques</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('creneaux.index') }}">Créneaux</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('statistiques') }}">Statistiques</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('export.pdf') }}">Export PDF</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('export.excel') }}">Export Excel</a></li>
+                        <a href="{{ route('presences.recap') }}" class="btn btn-outline-info">📋 Récapitulatif des présences</a>
+
 
                         {{-- EMPLOYE --}}
                     @elseif(auth()->user()->role === 'employe')
@@ -35,7 +36,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
     <span class="navbar-text text-light">
-        Connecté en tant que : <strong>{{ auth()->user()->email }}</strong> ({{ auth()->user()->role }})
+        <strong>{{ auth()->user()->email }}</strong> ({{ auth()->user()->role }})
     </span>
                     </li>
                     <li class="nav-item ms-3">

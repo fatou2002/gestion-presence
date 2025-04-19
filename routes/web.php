@@ -40,10 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::resource('users', UserController::class);
-        //Route::resource('services', ServiceController::class);
-        //Route::resource('creneaux', CreneauController::class);
-        Route::get('/export/pdf', [ExportController::class, 'exportPDF'])->name('export.pdf');
-        Route::get('/export/excel', [ExportController::class, 'exportExcel'])->name('export.excel');
+
     });
 
     // Routes accessibles aux gestionnaires uniquement
@@ -51,6 +48,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
         Route::resource('services', ServiceController::class);
         Route::resource('creneaux', CreneauController::class);
+        Route::get('/presences/recap', [PresenceController::class, 'recap'])->name('presences.recap');
+        Route::get('/export/pdf', [ExportController::class, 'exportPDF'])->name('export.pdf');
+        Route::get('/export/excel', [ExportController::class, 'exportExcel'])->name('export.excel');
         Route::get('/statistiques', [App\Http\Controllers\PresenceController::class, 'statistiques'])->name('statistiques');
 
     });
@@ -59,10 +59,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([EmployeeMiddleware::class])->group(function () {
         Route::get('/employee/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
         Route::resource('presences', PresenceController::class);
+        Route::post('/presences/{id}/emarger', [PresenceController::class, 'emarger'])->name('presences.emarger'); // 👈 ICI
         Route::get('/check-in', [PresenceController::class, 'checkInForm'])->name('presences.checkin');
         Route::post('/check-in', [PresenceController::class, 'checkIn'])->name('presences.checkin.store');
     });
 
-    // Routes accessibles à tous les rôles
 
 });

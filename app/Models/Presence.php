@@ -16,6 +16,10 @@ class Presence extends Model
         'statut',
 
     ];
+    protected $casts = [
+        'emargement' => 'boolean',
+    ];
+
 
 
     public function user()

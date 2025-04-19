@@ -21,7 +21,6 @@ class PresenceController extends Controller
 
     public function checkIn(Request $request)
     {
-
         $request->validate([
             'date' => 'required|date',
             'heure_arrivee' => 'required|date_format:H:i',
@@ -34,28 +33,34 @@ class PresenceController extends Controller
             ->first();
 
         if ($existingPresence) {
-            return redirect()->route('presences.checkin')->with('error', 'Vous avez déjà effectué un check-in pour cette journée.');
+            return redirect()->route('presences.checkin')->with('error', 'Vous avez déjà pointé aujourd’hui.');
         }
 
-        // ✅ Créer et sauvegarder la présence
         $presence = Presence::create([
             'user_id' => $user->id,
             'date' => $request->date,
             'heure_arrivee' => $request->heure_arrivee,
         ]);
-        dd('checkIn triggered'); // ← ajoute ça juste au début
-
-        // ✅ Envoyer une notification par email
-        $user->notify(new PresenceEnregistree($presence));
 
         return redirect()->route('presences.index')->with('success', 'Check-in effectué avec succès.');
     }
 
-    public function index()
+
+    public function index(Request $request)
     {
-        $presences = Presence::with('user')->latest()->get();
+        $query = Presence::with('user');
+
+        if ($request->filtre === 'emargees') {
+            $query->where('emargement', true);
+        } elseif ($request->filtre === 'non_emargees') {
+            $query->where('emargement', false);
+        }
+
+        $presences = $query->get();
+
         return view('presences.index', compact('presences'));
     }
+
 
     public function create()
     {
@@ -108,16 +113,7 @@ class PresenceController extends Controller
         return redirect()->route('presences.index')->with('success', 'Présence supprimée.');
     }
 
-    public function autoCheckIn()
-    {
-        Presence::create([
-            'user_id' => Auth::id(),
-            'date' => now()->toDateString(),
-            'heure_arrivee' => now()->toTimeString(),
-        ]);
 
-        return redirect()->route('presences.index')->with('success', 'Check-in automatique effectué.');
-    }
 
     public function statistiques(Request $request)
     {
@@ -177,4 +173,38 @@ class PresenceController extends Controller
             'services', 'presenceParService'
         ));
     }
+
+    public function emarger($id)
+    {
+        $presence = Presence::findOrFail($id);
+        $presence->emargement = true;
+        $presence->save();
+
+        return redirect()->back()->with('success', 'Présence émargée avec succès.');
+    }
+    public function recap(Request $request)
+    {
+        $query = Presence::with('user');
+
+        if ($request->filled('date')) {
+            $query->where('date', $request->date);
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filtre === 'emargees') {
+            $query->where('emargement', true);
+        } elseif ($request->filtre === 'non_emargees') {
+            $query->where('emargement', false);
+        }
+
+        $presences = $query->get();
+        $users = \App\Models\User::all();
+
+        return view('presences.recap', compact('presences', 'users'));
+    }
+
+
 }
